@@ -1,18 +1,19 @@
 "use client";
 
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent, type Variants } from "framer-motion";
 import { useState } from "react";
 import { ArrowRight, Star, Zap, Shield, BarChart3, Check, ChevronRight, MessageSquare, Bot, Database, Share2 } from "lucide-react";
 import { Logos3 } from "@/components/ui/logos3";
 import { SplitScrollProblem } from "@/components/ui/split-scroll-problem";
 import { FeatureCard } from "@/components/ui/grid-feature-cards";
 import SkewCards from "@/components/ui/gradient-card-showcase";
+import FeatureSection from "@/components/ui/feature-section";
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.14, delayChildren: 0.2 } },
 };
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
@@ -150,39 +151,7 @@ export default function Home() {
       </section>
 
       {/* ══════ VALUE STACK ══════ */}
-      <section id="stack" className="relative z-20 py-24 md:py-32 bg-bg-soft rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
-        <div className="max-w-4xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-center mb-16">
-            <p className="text-xs font-medium text-text-muted uppercase tracking-[0.15em] mb-4">What you get</p>
-            <h2 className="font-medium tracking-[-0.03em] text-[clamp(1.75rem,4vw,3rem)] leading-tight">
-              The full <span className="font-serif italic">stack</span>
-            </h2>
-          </motion.div>
-          <div className="flex flex-col gap-4">
-            {[
-              "Custom AI + Automation System — tailored to your business",
-              "Full integration with your existing tools (CRM, WhatsApp, email)",
-              "90-day optimization & monitoring",
-              "Team training & documentation",
-              "Dedicated support channel",
-              "Monthly performance reports",
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.06 }} className="flex items-start gap-3 p-4 rounded-xl bg-white border border-black/[0.04]">
-                <Check className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span className="text-sm font-medium">{item}</span>
-              </motion.div>
-            ))}
-          </div>
-          <div className="mt-8 p-6 rounded-2xl bg-white border border-black/[0.04] shadow-card">
-            <p className="text-xs uppercase tracking-[0.15em] text-text-muted mb-4 font-medium">Bonuses included</p>
-            <div className="grid sm:grid-cols-3 gap-4">
-              {["Free Operational Audit", "Priority support — 90 days", "System expansion consultation"].map((b, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm text-text-secondary"><ChevronRight className="w-4 h-4 text-text-light" />{b}</div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <FeatureSection />
 
       {/* ══════ GUARANTEE ══════ */}
       <section className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
