@@ -11,6 +11,8 @@ export type OnboardingData = {
   timeline: string;
   name: string;
   email: string;
+  phone: string;
+  preference: string;
 };
 
 const REVENUE_OPTIONS_USD = ["Under $10k/mo", "$10k-$50k/mo", "$50k-$150k/mo", "$150k+/mo"];
@@ -46,10 +48,27 @@ const STEPS = [
     options: ["ASAP", "1-3 months", "Just exploring"],
   },
   {
+    id: "contact",
+    title: "Before we proceed...",
+    subtitle: "Where should we send your audit results and who should we contact?",
+    type: "contact",
+  },
+  {
+    id: "preference",
+    title: "How would you like to receive your audit?",
+    options: ["Book a live Google Meet (Recommended)", "Receive a call back from our team"],
+  },
+  {
     id: "calendar",
-    title: "You qualify for a Systems Audit.",
+    title: "Let us deliver you a live audit on Google Meet within 15 minutes.",
     subtitle: "We don't send generic PDFs. Book your Execution Call below. We will dissect your bottlenecks, map out your custom AI infrastructure, and deliver your audit live on the call.",
     type: "calendar",
+  },
+  {
+    id: "success",
+    title: "We've received your request.",
+    subtitle: "Our team will review your bottlenecks and call you shortly to deliver your custom audit.",
+    type: "success",
   }
 ];
 
@@ -69,6 +88,8 @@ export default function PremiumOnboarding({
     timeline: "",
     name: "",
     email: "",
+    phone: "",
+    preference: "",
   });
 
   useEffect(() => {
@@ -128,6 +149,25 @@ export default function PremiumOnboarding({
       return;
     }
 
+    if (stepDef.id === "preference") {
+      const updatedData = { ...data, [field]: value };
+      setData(updatedData);
+      
+      // Push to CRM in background
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData)
+      }).catch(console.error);
+
+      if (value.includes("Google Meet")) {
+        setCurrentStep(STEPS.findIndex(s => s.id === "calendar"));
+      } else {
+        setCurrentStep(STEPS.findIndex(s => s.id === "success"));
+      }
+      return;
+    }
+
     // Single select logic
     setData((prev) => ({ ...prev, [field]: value }));
     setTimeout(() => {
@@ -153,9 +193,10 @@ export default function PremiumOnboarding({
           </button>
 
           <motion.div 
-            className={`w-full bg-white/95 shadow-2xl rounded-3xl p-6 md:p-12 border border-black/[0.04] relative transition-all duration-500 overflow-y-auto max-h-[90vh] ${
+            className={`w-full bg-white/95 shadow-2xl rounded-3xl p-6 md:p-12 border border-black/[0.04] relative transition-all duration-500 overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden ${
               STEPS[currentStep].type === "calendar" ? "max-w-4xl" : "max-w-2xl"
             }`}
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -232,6 +273,39 @@ export default function PremiumOnboarding({
                   </button>
                 )}
 
+                {step.type === "contact" && (
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      placeholder="Your Name"
+                      value={data.name}
+                      onChange={(e) => setData({ ...data, name: e.target.value })}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 transition-colors"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Work Email"
+                      value={data.email}
+                      onChange={(e) => setData({ ...data, email: e.target.value })}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 transition-colors"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Mobile Number"
+                      value={data.phone}
+                      onChange={(e) => setData({ ...data, phone: e.target.value })}
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 transition-colors"
+                    />
+                    <button
+                      onClick={() => setCurrentStep(currentStep + 1)}
+                      disabled={!data.name || !data.email || !data.phone}
+                      className="w-full mt-2 px-8 py-4 bg-gray-900 text-white rounded-full font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Continue <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 {step.type === "calendar" && (
                   <div className="w-full mt-4 aspect-video min-h-[400px] relative overflow-hidden rounded-xl border border-gray-100 bg-white">
                     {!calLoaded && (
@@ -246,10 +320,23 @@ export default function PremiumOnboarding({
                     <div className={`relative z-10 w-full h-full transition-opacity duration-700 ${calLoaded ? 'opacity-100' : 'opacity-0'}`}>
                       <Cal
                         calLink="infimode/15min"
-                        style={{ width: "100%", height: "100%", overflow: "scroll" }}
-                        config={{ layout: "month_view" }}
+                        style={{ width: "100%", height: "100%", overflow: "hidden" }}
+                        config={{ 
+                          name: data.name, 
+                          email: data.email, 
+                          notes: `Bottlenecks: ${data.bottleneck.join(", ")}\nRevenue: ${data.revenue}\nTimeline: ${data.timeline}\nPhone: ${data.phone}` 
+                        }}
                       />
                     </div>
+                  </div>
+                )}
+
+                {step.type === "success" && (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 p-4 bg-gray-50 border border-gray-100 rounded-full">
+                      <CheckCircle2 className="w-16 h-16 text-gray-900" />
+                    </motion.div>
+                    <h3 className="text-2xl font-medium text-gray-900">Talk soon.</h3>
                   </div>
                 )}
               </motion.div>
