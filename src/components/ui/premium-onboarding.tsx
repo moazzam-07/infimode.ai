@@ -12,6 +12,9 @@ export type OnboardingData = {
   email: string;
 };
 
+const REVENUE_OPTIONS_USD = ["Under $10k/mo", "$10k-$50k/mo", "$50k-$150k/mo", "$150k+/mo"];
+const REVENUE_OPTIONS_INR = ["Under ₹8 Lakhs/mo", "₹8L - ₹40L/mo", "₹40L - ₹1.2Cr/mo", "₹1.2Cr+/mo"];
+
 const STEPS = [
   {
     id: "bottleneck",
@@ -62,6 +65,7 @@ export default function PremiumOnboarding({
   onClose: () => void;
 }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isIndian, setIsIndian] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     bottleneck: [],
     revenue: "",
@@ -69,6 +73,10 @@ export default function PremiumOnboarding({
     name: "",
     email: "",
   });
+
+  useEffect(() => {
+    setIsIndian(Intl.DateTimeFormat().resolvedOptions().timeZone === "Asia/Kolkata");
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -149,9 +157,14 @@ export default function PremiumOnboarding({
                 {step.subtitle && <p className="text-gray-500 mb-8">{step.subtitle}</p>}
                 {!step.subtitle && step.id !== "revenue" && <div className="h-8" />}
 
-                {step.options && (
+                {step.options && (() => {
+                  const currentOptions = step.id === "revenue" 
+                    ? (isIndian ? REVENUE_OPTIONS_INR : REVENUE_OPTIONS_USD) 
+                    : step.options;
+                  
+                  return (
                   <div className="flex flex-col gap-3">
-                    {step.options.map((option, idx) => {
+                    {currentOptions.map((option, idx) => {
                       const isSelected = step.multiSelect 
                         ? data[step.id as keyof OnboardingData].includes(option)
                         : data[step.id as keyof OnboardingData] === option;
@@ -180,7 +193,8 @@ export default function PremiumOnboarding({
                       );
                     })}
                   </div>
-                )}
+                  );
+                })}
 
                 {step.multiSelect && (
                   <button
