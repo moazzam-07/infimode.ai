@@ -62,6 +62,7 @@ export default function PremiumOnboarding({
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isIndian, setIsIndian] = useState(false);
+  const [calLoaded, setCalLoaded] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     bottleneck: [],
     revenue: "",
@@ -88,6 +89,16 @@ export default function PremiumOnboarding({
     (async function () {
       const cal = await getCalApi();
       cal("ui", { styles: { branding: { brandColor: "#111827" } }, hideEventTypeDetails: false, layout: "month_view" });
+      cal("on", {
+        action: "*",
+        callback: (e) => {
+          if (e.detail.type === "linkReady" || e.detail.type === "eventTypeLoaded") {
+            setCalLoaded(true);
+          }
+        }
+      });
+      // Fallback in case events don't fire
+      setTimeout(() => setCalLoaded(true), 3000);
     })();
   }, []);
 
@@ -142,7 +153,9 @@ export default function PremiumOnboarding({
           </button>
 
           <motion.div 
-            className="w-full max-w-2xl bg-white/95 shadow-2xl rounded-3xl p-8 md:p-12 border border-black/[0.04] overflow-hidden relative"
+            className={`w-full bg-white/95 shadow-2xl rounded-3xl p-6 md:p-12 border border-black/[0.04] relative transition-all duration-500 overflow-y-auto max-h-[90vh] ${
+              STEPS[currentStep].type === "calendar" ? "max-w-4xl" : "max-w-2xl"
+            }`}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -220,12 +233,23 @@ export default function PremiumOnboarding({
                 )}
 
                 {step.type === "calendar" && (
-                  <div className="w-full mt-2 h-[500px] overflow-hidden rounded-xl border border-gray-100 bg-white">
-                    <Cal
-                      calLink="infimode/15min"
-                      style={{ width: "100%", height: "100%", overflow: "scroll" }}
-                      config={{ layout: "month_view" }}
-                    />
+                  <div className="w-full mt-4 aspect-video min-h-[400px] relative overflow-hidden rounded-xl border border-gray-100 bg-white">
+                    {!calLoaded && (
+                      <div className="absolute inset-0 z-0 flex flex-col p-6 gap-6 bg-white animate-pulse">
+                        <div className="h-8 w-1/3 bg-gray-100 rounded-lg"></div>
+                        <div className="flex gap-6 h-full mt-2">
+                           <div className="w-1/3 h-full bg-gray-100 rounded-xl hidden md:block"></div>
+                           <div className="w-full md:w-2/3 h-full bg-gray-100 rounded-xl"></div>
+                        </div>
+                      </div>
+                    )}
+                    <div className={`relative z-10 w-full h-full transition-opacity duration-700 ${calLoaded ? 'opacity-100' : 'opacity-0'}`}>
+                      <Cal
+                        calLink="infimode/15min"
+                        style={{ width: "100%", height: "100%", overflow: "scroll" }}
+                        config={{ layout: "month_view" }}
+                      />
+                    </div>
                   </div>
                 )}
               </motion.div>
