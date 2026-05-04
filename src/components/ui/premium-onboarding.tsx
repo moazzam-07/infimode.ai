@@ -75,7 +75,17 @@ export default function PremiumOnboarding({
   });
 
   useEffect(() => {
-    setIsIndian(Intl.DateTimeFormat().resolvedOptions().timeZone === "Asia/Kolkata");
+    // Using IP Geolocation to reliably detect country (works on localhost and Vercel)
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.country_code === "IN") {
+          setIsIndian(true);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch IP geo", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -194,7 +204,7 @@ export default function PremiumOnboarding({
                     })}
                   </div>
                   );
-                })}
+                })()}
 
                 {step.multiSelect && (
                   <button
