@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export type OnboardingData = {
-  bottleneck: string;
+  bottleneck: string[];
   revenue: string;
   timeline: string;
   name: string;
@@ -15,7 +15,9 @@ export type OnboardingData = {
 const STEPS = [
   {
     id: "bottleneck",
-    title: "What's the biggest operational bottleneck in your business right now?",
+    title: "What are the operational bottlenecks in your business right now?",
+    subtitle: "Select all that apply.",
+    multiSelect: true,
     options: [
       "Missed Leads & Slow Response Times",
       "Data Chaos (Scattered across spreadsheets & apps)",
@@ -61,7 +63,7 @@ export default function PremiumOnboarding({
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
-    bottleneck: "",
+    bottleneck: [],
     revenue: "",
     timeline: "",
     name: "",
@@ -79,6 +81,22 @@ export default function PremiumOnboarding({
   }, [isOpen]);
 
   const handleOptionSelect = (field: keyof OnboardingData, value: string) => {
+    const stepDef = STEPS[currentStep];
+    
+    if (stepDef.multiSelect) {
+      setData((prev) => {
+        const currentArr = (prev[field] as string[]) || [];
+        if (currentArr.includes(value)) {
+          return { ...prev, [field]: currentArr.filter((item) => item !== value) };
+        } else {
+          return { ...prev, [field]: [...currentArr, value] };
+        }
+      });
+      // Do not auto-advance on multi-select
+      return;
+    }
+
+    // Single select logic
     setData((prev) => ({ ...prev, [field]: value }));
     setTimeout(() => {
       if (currentStep < STEPS.length - 1) {
@@ -121,37 +139,57 @@ export default function PremiumOnboarding({
                   {step.title}
                 </h2>
 
-                {step.id === "revenue" && data.bottleneck && (
-                  <p className="text-gray-500 mb-8">{step.dynamicSubtitle?.[data.bottleneck as keyof typeof step.dynamicSubtitle]}</p>
+                {step.id === "revenue" && data.bottleneck.length > 0 && (
+                  <p className="text-gray-500 mb-8">
+                    {data.bottleneck.length === 1 
+                      ? step.dynamicSubtitle?.[data.bottleneck[0] as keyof typeof step.dynamicSubtitle]
+                      : "AI infrastructure can eliminate these bottlenecks. Let's see if we're a fit..."}
+                  </p>
                 )}
                 {step.subtitle && <p className="text-gray-500 mb-8">{step.subtitle}</p>}
                 {!step.subtitle && step.id !== "revenue" && <div className="h-8" />}
 
                 {step.options && (
                   <div className="flex flex-col gap-3">
-                    {step.options.map((option, idx) => (
-                      <button
-                        key={option}
-                        onClick={() => handleOptionSelect(step.id as keyof OnboardingData, option)}
-                        className={`w-full text-left px-6 py-4 rounded-2xl border transition-all duration-200 group flex items-center justify-between
-                          ${data[step.id as keyof OnboardingData] === option 
-                            ? 'bg-gray-900 text-white border-gray-900' 
-                            : 'bg-white border-gray-200 text-gray-900 hover:border-gray-400 shadow-sm'
-                          }
-                        `}
-                      >
-                        <span className="font-medium">{option}</span>
-                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs
-                          ${data[step.id as keyof OnboardingData] === option
-                            ? 'border-white/20 text-white'
-                            : 'border-gray-200 text-gray-400 group-hover:border-gray-400'
-                          }`}
+                    {step.options.map((option, idx) => {
+                      const isSelected = step.multiSelect 
+                        ? data[step.id as keyof OnboardingData].includes(option)
+                        : data[step.id as keyof OnboardingData] === option;
+
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => handleOptionSelect(step.id as keyof OnboardingData, option)}
+                          className={`w-full text-left px-6 py-4 rounded-2xl border transition-all duration-200 group flex items-center justify-between
+                            ${isSelected 
+                              ? 'bg-gray-900 text-white border-gray-900' 
+                              : 'bg-white border-gray-200 text-gray-900 hover:border-gray-400 shadow-sm'
+                            }
+                          `}
                         >
-                          {String.fromCharCode(65 + idx)}
-                        </div>
-                      </button>
-                    ))}
+                          <span className="font-medium">{option}</span>
+                          <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs
+                            ${isSelected
+                              ? 'border-white/20 text-white'
+                              : 'border-gray-200 text-gray-400 group-hover:border-gray-400'
+                            }`}
+                          >
+                            {step.multiSelect && isSelected ? <CheckCircle2 className="w-4 h-4 text-white" /> : String.fromCharCode(65 + idx)}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
+                )}
+
+                {step.multiSelect && (
+                  <button
+                    onClick={() => setCurrentStep(currentStep + 1)}
+                    disabled={data[step.id as keyof OnboardingData].length === 0}
+                    className="w-full mt-6 px-8 py-4 bg-gray-900 text-white rounded-full font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continue <ArrowRight className="w-4 h-4" />
+                  </button>
                 )}
 
                 {step.type === "form" && (
