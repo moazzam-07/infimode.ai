@@ -8,6 +8,8 @@ import { SplitScrollProblem } from "@/components/ui/split-scroll-problem";
 import { FeatureCard } from "@/components/ui/grid-feature-cards";
 import SkewCards from "@/components/ui/gradient-card-showcase";
 import FeatureSection from "@/components/ui/feature-section";
+import ParallaxFooter from "@/components/ui/parallax-footer";
+import PremiumOnboarding from "@/components/ui/premium-onboarding";
 
 const stagger: Variants = {
   hidden: {},
@@ -21,6 +23,7 @@ const fadeUp: Variants = {
 export default function Home() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
@@ -47,14 +50,14 @@ export default function Home() {
             <a href="#stack" className="hover:text-text transition-colors">What You Get</a>
             <a href="#faq" className="hover:text-text transition-colors">FAQ</a>
           </div>
-          <a href="#cta" className="bg-bg-dark text-text-on-dark px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 active:scale-[0.97] transition-all shadow-[inset_-4px_-6px_25px_0px_rgba(201,201,201,0.08),inset_4px_4px_10px_0px_rgba(29,29,29,0.24)]">
+          <button onClick={() => setIsOnboardingOpen(true)} className="bg-bg-dark text-text-on-dark px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 active:scale-[0.97] transition-all shadow-[inset_-4px_-6px_25px_0px_rgba(201,201,201,0.08),inset_4px_4px_10px_0px_rgba(29,29,29,0.24)] cursor-pointer">
             Book a Call
-          </a>
+          </button>
         </div>
       </motion.nav>
 
       {/* ══════ HERO ══════ */}
-      <section className="relative min-h-screen overflow-hidden flex flex-col">
+      <section className="relative min-h-[75vh] md:min-h-screen overflow-hidden flex flex-col">
         <div className="absolute inset-0 z-0">
           <video autoPlay loop muted playsInline className="w-full h-full object-cover [transform:scaleY(-1)]">
             <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
@@ -62,7 +65,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-[26.416%] from-[rgba(255,255,255,0)] to-[66.943%] to-white" />
         </div>
 
-        <motion.div variants={stagger} initial="hidden" animate="show" className="relative z-10 flex-1 flex flex-col items-center pt-[200px] md:pt-[290px] px-6 pb-24 md:pb-40">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="relative z-10 flex-1 flex flex-col items-center justify-center pt-32 md:pt-40 px-6 pb-12 md:pb-32">
           <div className="max-w-[1200px] w-full flex flex-col items-center gap-8 text-center">
             <motion.div variants={fadeUp}>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/[0.04] border border-black/[0.06] text-xs font-medium text-text-muted">
@@ -81,10 +84,11 @@ export default function Home() {
             </motion.p>
 
             <motion.div variants={fadeUp} className="w-full max-w-[520px] mt-2">
-              <div className="flex items-center gap-2 p-2 rounded-[40px] bg-[#fcfcfc] border border-black/[0.06] shadow-soft">
-                <input type="email" placeholder="Enter your work email" className="flex-1 bg-transparent px-5 py-3 text-sm text-text placeholder:text-text-light outline-none" />
-                <button className="flex items-center gap-2 px-6 py-3 rounded-full bg-bg-dark text-text-on-dark text-sm font-medium hover:opacity-90 active:scale-[0.97] transition-all shadow-[inset_-4px_-6px_25px_0px_rgba(201,201,201,0.08),inset_4px_4px_10px_0px_rgba(29,29,29,0.24)] whitespace-nowrap cursor-pointer group">
-                  Get Free AI Audit
+              <div className="flex items-center p-1.5 sm:p-2 rounded-[40px] bg-[#fcfcfc] border border-black/[0.06] shadow-soft w-full">
+                <input type="email" placeholder="Enter your work email" className="flex-1 min-w-0 bg-transparent px-4 sm:px-5 py-2 sm:py-3 text-sm text-text placeholder:text-text-light outline-none" />
+                <button onClick={() => setIsOnboardingOpen(true)} className="flex-shrink-0 flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-bg-dark text-text-on-dark text-sm font-medium hover:opacity-90 active:scale-[0.97] transition-all shadow-[inset_-4px_-6px_25px_0px_rgba(201,201,201,0.08),inset_4px_4px_10px_0px_rgba(29,29,29,0.24)] whitespace-nowrap cursor-pointer group">
+                  <span className="hidden sm:inline">Get Free AI Audit</span>
+                  <span className="sm:hidden">Get Audit</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
@@ -154,8 +158,16 @@ export default function Home() {
       <FeatureSection />
 
       {/* ══════ GUARANTEE ══════ */}
-      <section className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)] overflow-hidden">
+        {/* Soft Emerald Glow Background */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(120% 120% at 50% 0%, #ffffff 50%, rgba(16, 185, 129, 0.15) 100%)`,
+            backgroundSize: "100% 100%",
+          }}
+        />
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="flex flex-col items-center gap-6">
             <div className="w-16 h-16 rounded-full bg-bg-soft border border-black/[0.04] flex items-center justify-center shadow-card">
               <Shield className="w-7 h-7 text-text" />
@@ -171,9 +183,9 @@ export default function Home() {
       </section>
 
       {/* ══════ WHO THIS IS FOR ══════ */}
-      <section className="relative z-20 py-24 md:py-32 bg-bg-soft rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)] overflow-hidden">
+      <section className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)] overflow-hidden">
         {/* Splashy Green Glow Transition */}
-        <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[300px] bg-green-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
+        <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[400px] bg-[#10b981]/20 rounded-full blur-[100px] pointer-events-none z-0" />
         <div className="relative z-10 max-w-4xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-center mb-14">
             <h2 className="font-medium tracking-[-0.03em] text-[clamp(1.75rem,4vw,2.5rem)] leading-tight">
@@ -194,8 +206,15 @@ export default function Home() {
       </section>
 
       {/* ══════ FAQ ══════ */}
-      <section id="faq" className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
-        <div className="max-w-3xl mx-auto px-6">
+      <section id="faq" className="relative z-20 py-24 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] -mt-8 md:-mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.02)] overflow-hidden">
+        {/* Soft Indigo Glow Background */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(120% 120% at 50% 0%, #ffffff 50%, rgba(99, 102, 241, 0.15) 100%)",
+          }}
+        />
+        <div className="relative z-10 max-w-3xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-center mb-14">
             <h2 className="font-medium tracking-[-0.03em] text-[clamp(1.75rem,4vw,2.5rem)] leading-tight">
               Common <span className="font-serif italic">questions</span>
@@ -235,10 +254,10 @@ export default function Home() {
               Book a free strategy call. We&apos;ll audit your operations and show you exactly where AI can drive revenue. 30 minutes. Zero obligation.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
-              <button className="w-full sm:w-auto bg-white text-bg-dark px-8 py-4 rounded-full font-medium text-base hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-2 group cursor-pointer">
+              <button onClick={() => setIsOnboardingOpen(true)} className="w-full sm:w-auto bg-white text-bg-dark px-8 py-4 rounded-full font-medium text-base hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-2 group cursor-pointer">
                 Book Your Strategy Call <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full font-medium text-base text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-all flex items-center justify-center cursor-pointer">
+              <button onClick={() => setIsOnboardingOpen(true)} className="w-full sm:w-auto px-8 py-4 rounded-full font-medium text-base text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-all flex items-center justify-center cursor-pointer">
                 Get Free AI Audit
               </button>
             </div>
@@ -246,14 +265,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════ FOOTER ══════ */}
-      <footer className="py-10 bg-bg-dark text-white/40 border-t border-white/[0.06]">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-sm font-medium text-white/60">infimode<span className="font-serif italic">.ai</span></span>
-          <p className="text-xs">Based in India. Operating globally. © {new Date().getFullYear()}</p>
-          <div className="flex gap-5 text-xs"><a href="#" className="hover:text-white/70 transition-colors">Privacy</a><a href="#" className="hover:text-white/70 transition-colors">Terms</a></div>
-        </div>
-      </footer>
+      {/* ══════ PARALLAX FOOTER (CTA + Links) ══════ */}
+      <ParallaxFooter onBookClick={() => setIsOnboardingOpen(true)} />
+
+      <PremiumOnboarding isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} />
     </main>
   );
 }
