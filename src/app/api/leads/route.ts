@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -49,6 +47,7 @@ export async function POST(req: Request) {
     // ---------------------------------------------------------
     // Sends an instant alert to your registered Resend email address
     if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
       try {
         await resend.emails.send({
           from: "Acquisition System <onboarding@resend.dev>",
