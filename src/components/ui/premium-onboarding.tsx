@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, CheckCircle2 } from "lucide-react";
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 export type OnboardingData = {
   bottleneck: string[];
@@ -45,15 +46,10 @@ const STEPS = [
     options: ["ASAP", "1-3 months", "Just exploring"],
   },
   {
-    id: "contact",
-    title: "Where should we send your audit results?",
-    type: "form",
-  },
-  {
-    id: "success",
-    title: "You're qualified.",
-    subtitle: "Redirecting to calendar...",
-    type: "success",
+    id: "calendar",
+    title: "You qualify for a Systems Audit.",
+    subtitle: "We don't send generic PDFs. Book your Execution Call below. We will dissect your bottlenecks, map out your custom AI infrastructure, and deliver your audit live on the call.",
+    type: "calendar",
   }
 ];
 
@@ -86,6 +82,13 @@ export default function PremiumOnboarding({
       .catch((err) => {
         console.error("Failed to fetch IP geo", err);
       });
+  }, []);
+
+  useEffect(() => {
+    (async function () {
+      const cal = await getCalApi();
+      cal("ui", { styles: { branding: { brandColor: "#111827" } }, hideEventTypeDetails: false, layout: "month_view" });
+    })();
   }, []);
 
   useEffect(() => {
@@ -216,37 +219,13 @@ export default function PremiumOnboarding({
                   </button>
                 )}
 
-                {step.type === "form" && (
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      placeholder="Your Name"
-                      value={data.name}
-                      onChange={(e) => setData({ ...data, name: e.target.value })}
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 transition-colors"
+                {step.type === "calendar" && (
+                  <div className="w-full mt-2 h-[500px] overflow-hidden rounded-xl border border-gray-100 bg-white">
+                    <Cal
+                      calLink="infimode/15min"
+                      style={{ width: "100%", height: "100%", overflow: "scroll" }}
+                      config={{ layout: "month_view" }}
                     />
-                    <input
-                      type="email"
-                      placeholder="Work Email"
-                      value={data.email}
-                      onChange={(e) => setData({ ...data, email: e.target.value })}
-                      className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-400 transition-colors"
-                    />
-                    <button
-                      onClick={() => setCurrentStep(currentStep + 1)}
-                      disabled={!data.name || !data.email}
-                      className="w-full mt-2 px-8 py-4 bg-gray-900 text-white rounded-full font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Finish <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-
-                {step.type === "success" && (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 p-4 bg-green-50 rounded-full">
-                      <CheckCircle2 className="w-12 h-12 text-green-500" />
-                    </motion.div>
                   </div>
                 )}
               </motion.div>
