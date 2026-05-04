@@ -210,7 +210,7 @@ export default function PremiumOnboarding({
                 transition={{ duration: 0.3 }}
                 className="flex flex-col"
               >
-                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-gray-900 mb-2">
+                <h2 className={`font-medium tracking-tight text-gray-900 mb-2 ${step.type === 'calendar' ? 'text-xl md:text-3xl' : 'text-2xl md:text-3xl'}`}>
                   {step.title}
                 </h2>
 
@@ -221,7 +221,11 @@ export default function PremiumOnboarding({
                       : "AI infrastructure can eliminate these bottlenecks. Let's see if we're a fit..."}
                   </p>
                 )}
-                {step.subtitle && <p className="text-gray-500 mb-8">{step.subtitle}</p>}
+                {step.subtitle && (
+                  <p className={`text-gray-500 mb-8 ${step.type === 'calendar' ? 'hidden md:block' : ''}`}>
+                    {step.subtitle}
+                  </p>
+                )}
                 {!step.subtitle && step.id !== "revenue" && <div className="h-8" />}
 
                 {step.options && (() => {
@@ -307,7 +311,7 @@ export default function PremiumOnboarding({
                 )}
 
                 {step.type === "calendar" && (
-                  <div className="w-full mt-4 aspect-video min-h-[400px] relative overflow-hidden rounded-xl border border-gray-100 bg-white">
+                  <div className="w-full mt-2 md:mt-4 h-[500px] md:h-[600px] relative rounded-xl border border-gray-100 bg-white overflow-hidden">
                     {!calLoaded && (
                       <div className="absolute inset-0 z-0 flex flex-col p-6 gap-6 bg-white animate-pulse">
                         <div className="h-8 w-1/3 bg-gray-100 rounded-lg"></div>
@@ -320,7 +324,7 @@ export default function PremiumOnboarding({
                     <div className={`relative z-10 w-full h-full transition-opacity duration-700 ${calLoaded ? 'opacity-100' : 'opacity-0'}`}>
                       <Cal
                         calLink="infimode/15min"
-                        style={{ width: "100%", height: "100%", overflow: "hidden" }}
+                        style={{ width: "100%", height: "100%", overflow: "scroll", scrollbarWidth: "none", msOverflowStyle: "none" }}
                         config={{ 
                           name: data.name, 
                           email: data.email, 
