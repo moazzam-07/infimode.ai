@@ -12,7 +12,11 @@ type FeatureCardProps = React.ComponentProps<'div'> & {
 };
 
 export function FeatureCard({ feature, className, ...props }: FeatureCardProps) {
-	const p = genRandomPattern();
+	const [p, setP] = React.useState<number[][]>([]);
+
+	React.useEffect(() => {
+		setP(genRandomPattern());
+	}, []);
 
 	return (
 		<div className={cn('relative overflow-hidden p-8 md:p-10', className)} {...props}>
